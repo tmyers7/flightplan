@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlightPlan Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="fp-root">
+
+  <!-- HEADER -->
+  <div class="fp-header">
+    <div class="fp-logo">
+      <div class="fp-logo-icon"></div>
+      <div>
+        <div class="fp-logo-text">FLIGHTPLAN PRO</div>
+        <div class="fp-logo-sub">FLIGHT OPERATIONS SYSTEM — LOCAL EDITION</div>
+      </div>
+    </div>
+    <div class="fp-clock">
+      <div id="fp-time">--:--:-- UTC</div>
+      <div class="fp-clock-zulu">ZULU TIME ▪ <span id="fp-date">---</span></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="fp-tabs">
+    <button class="fp-tab active" onclick="fpShowTab('plan')">Flight Plan</button>
+    <button class="fp-tab" onclick="fpShowTab('route')">Route &amp; Waypoints</button>
+    <button class="fp-tab" onclick="fpShowTab('fuel')">Fuel &amp; Performance</button>
+    <button class="fp-tab" onclick="fpShowTab('wx')">Weather &amp; NOTAMs</button>
+    <button class="fp-tab" onclick="fpShowTab('output')">Filed Plan</button>
+  </div>
+
+  <div class="fp-body">
+
+    <!-- TAB: FLIGHT PLAN -->
+    <div id="tab-plan">
+      <div class="fp-section-label">Aircraft &amp; Pilot</div>
+      <div class="fp-card">
+        <div class="fp-grid-3" style="margin-bottom:12px">
+          <div class="fp-field">
+            <label class="fp-label">Aircraft Identification</label>
+            <input class="fp-input" id="fp-callsign" placeholder="N12345 / G-ABCD" maxlength="10">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Aircraft Type</label>
+            <input class="fp-input" id="fp-actype" placeholder="C172 / B738 / A320" maxlength="8">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Wake Turbulence Category</label>
+            <select class="fp-select" id="fp-wake">
+              <option value="L">L — Light (&lt;7,000 kg)</option>
+              <option value="M" selected>M — Medium (7–136k kg)</option>
+              <option value="H">H — Heavy (&gt;136,000 kg)</option>
+              <option value="J">J — Super (A380)</option>
+            </select>
+          </div>
+        </div>
+        <div class="fp-grid-3">
+          <div class="fp-field">
+            <label class="fp-label">Pilot in Command</label>
+            <input class="fp-input" id="fp-pic" placeholder="Full Name" style="text-transform:none">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Pilot Certificate #</label>
+            <input class="fp-input" id="fp-cert" placeholder="License / Certificate #">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Souls on Board</label>
+            <input class="fp-input" id="fp-souls" type="number" placeholder="1" min="1" max="999" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">Departure &amp; Destination</div>
+      <div class="fp-card">
+        <div class="fp-grid-2" style="margin-bottom:12px">
+          <div class="fp-field">
+            <label class="fp-label">Departure Airport (ICAO)</label>
+            <input class="fp-input" id="fp-dep" placeholder="KORD / EGLL / YSSY" maxlength="4" style="font-size:22px;letter-spacing:4px">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Destination Airport (ICAO)</label>
+            <input class="fp-input" id="fp-dest" placeholder="KLAX / EDDM / OMDB" maxlength="4" style="font-size:22px;letter-spacing:4px">
+          </div>
+        </div>
+        <div class="fp-grid-4" style="margin-bottom:12px">
+          <div class="fp-field">
+            <label class="fp-label">Departure Date</label>
+            <input class="fp-input" id="fp-depdate" type="date" style="text-transform:none">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">ETD (Zulu)</label>
+            <input class="fp-input" id="fp-etd" type="time" style="text-transform:none">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Est. Flight Time (HH:MM)</label>
+            <input class="fp-input" id="fp-ete" placeholder="02:30">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Alternate Airport</label>
+            <input class="fp-input" id="fp-altn" placeholder="KLAS / EDDF" maxlength="4">
+          </div>
+        </div>
+        <div class="fp-grid-3">
+          <div class="fp-field">
+            <label class="fp-label">Flight Rules</label>
+            <select class="fp-select" id="fp-rules">
+              <option value="VFR">VFR — Visual</option>
+              <option value="IFR" selected>IFR — Instrument</option>
+              <option value="DVFR">DVFR — Defense VFR</option>
+              <option value="SVFR">SVFR — Special VFR</option>
+            </select>
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Type of Flight</label>
+            <select class="fp-select" id="fp-fltype">
+              <option value="G">G — General Aviation</option>
+              <option value="N" selected>N — Non-Scheduled</option>
+              <option value="S">S — Scheduled</option>
+              <option value="M">M — Military</option>
+              <option value="X">X — Other</option>
+            </select>
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Special Equipment / Surveillance</label>
+            <input class="fp-input" id="fp-equip" placeholder="S / G / /L" maxlength="20">
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">Cruise &amp; Altitude</div>
+      <div class="fp-card">
+        <div class="fp-grid-4">
+          <div class="fp-field">
+            <label class="fp-label">Cruise Altitude</label>
+            <input class="fp-input" id="fp-alt" placeholder="FL350 / 8500">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">TAS (knots)</label>
+            <input class="fp-input" id="fp-tas" placeholder="250" type="number">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">True Course (°)</label>
+            <input class="fp-input" id="fp-hdg" placeholder="270" type="number" max="360">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Remarks</label>
+            <input class="fp-input" id="fp-remarks" placeholder="Any special notes" style="text-transform:none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: ROUTE & WAYPOINTS -->
+    <div id="tab-route" class="fp-hidden">
+      <div class="fp-section-label">Route String</div>
+      <div class="fp-card">
+        <div class="fp-field" style="margin-bottom:12px">
+          <label class="fp-label">Filed Route (SID / Waypoints / Airways / STAR)</label>
+          <textarea class="fp-textarea" id="fp-route" rows="3" placeholder="ROKNE3 ROKNE DCT HIRAC DCT ELMOO DCT RUBEY J146 MOCHA MOCHA7"></textarea>
+        </div>
+        <div class="fp-grid-2">
+          <div class="fp-field">
+            <label class="fp-label">SID (Standard Instrument Departure)</label>
+            <input class="fp-input" id="fp-sid" placeholder="e.g. ROKNE3 / BIMOK2A">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">STAR (Standard Terminal Arrival)</label>
+            <input class="fp-input" id="fp-star" placeholder="e.g. MOCHA7 / ROBUC3B">
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">Waypoint Log</div>
+      <div class="fp-card" style="padding:12px 16px">
+        <div class="fp-route-row fp-route-header-row">
+          <span class="fp-route-header">#</span>
+          <span class="fp-route-header">Fix / Navaid</span>
+          <span class="fp-route-header">Airway / DCT</span>
+          <span class="fp-route-header">Alt (ft)</span>
+          <span class="fp-route-header">ETE (HH:MM)</span>
+          <span class="fp-route-header">Fuel (gal)</span>
+          <span class="fp-route-header">Notes</span>
+          <span></span>
+        </div>
+        <div id="fp-waypoints"></div>
+        <div style="margin-top:12px">
+          <button class="fp-btn fp-btn-secondary" onclick="fpAddWaypoint()">+ Add Waypoint</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: FUEL & PERFORMANCE -->
+    <div id="tab-fuel" class="fp-hidden">
+      <div class="fp-section-label">Fuel Planning</div>
+      <div class="fp-card">
+        <div class="fp-grid-3" style="margin-bottom:16px">
+          <div class="fp-field">
+            <label class="fp-label">Fuel on Board (gallons)</label>
+            <input class="fp-input" id="fp-fob" type="number" placeholder="120" oninput="fpCalcFuel()">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Fuel Flow (gal/hr)</label>
+            <input class="fp-input" id="fp-ff" type="number" placeholder="12" oninput="fpCalcFuel()">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Reserve (minutes)</label>
+            <input class="fp-input" id="fp-res" type="number" placeholder="45" value="45" oninput="fpCalcFuel()">
+          </div>
+        </div>
+        <div id="fp-fuel-summary" style="display:none">
+          <div class="fp-separator"></div>
+          <div class="fp-grid-4" style="margin-bottom:12px">
+            <div>
+              <div class="fp-label">Trip Fuel</div>
+              <div class="fp-stat-val" id="fp-trip-fuel">—</div>
+            </div>
+            <div>
+              <div class="fp-label">Reserve Fuel</div>
+              <div class="fp-stat-val fp-amber" id="fp-res-fuel">—</div>
+            </div>
+            <div>
+              <div class="fp-label">Extra Fuel</div>
+              <div class="fp-stat-val" id="fp-extra-fuel">—</div>
+            </div>
+            <div>
+              <div class="fp-label">Total Endurance</div>
+              <div class="fp-stat-val" id="fp-endurance">—</div>
+            </div>
+          </div>
+          <div class="fp-label" style="margin-bottom:6px">Fuel State</div>
+          <div class="fp-fuel-bar-bg">
+            <div class="fp-fuel-bar" id="fp-fuel-bar" style="width:0%"></div>
+          </div>
+          <div class="fp-fuel-status-text" id="fp-fuel-status"></div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">Weight &amp; Balance</div>
+      <div class="fp-card">
+        <div class="fp-grid-3">
+          <div class="fp-field">
+            <label class="fp-label">Basic Empty Weight (lbs)</label>
+            <input class="fp-input" id="fp-bew" type="number" placeholder="1670" oninput="fpCalcWeight()">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Pilot + Passengers (lbs)</label>
+            <input class="fp-input" id="fp-pax-wt" type="number" placeholder="340" oninput="fpCalcWeight()">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Baggage (lbs)</label>
+            <input class="fp-input" id="fp-bag-wt" type="number" placeholder="50" oninput="fpCalcWeight()">
+          </div>
+        </div>
+        <div id="fp-weight-summary" style="display:none;margin-top:14px">
+          <div class="fp-separator"></div>
+          <div class="fp-grid-3">
+            <div>
+              <div class="fp-label">Ramp Weight</div>
+              <div class="fp-stat-val" id="fp-ramp-wt">—</div>
+            </div>
+            <div>
+              <div class="fp-label">Fuel Weight (6 lbs/gal)</div>
+              <div class="fp-stat-val" id="fp-fuel-wt">—</div>
+            </div>
+            <div>
+              <div class="fp-label">MTOW Status</div>
+              <div class="fp-stat-val" id="fp-mtow-status">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">Performance Reference</div>
+      <div class="fp-card">
+        <div class="fp-grid-3">
+          <div class="fp-field">
+            <label class="fp-label">Climb Rate (fpm)</label>
+            <input class="fp-input" id="fp-climbrate" type="number" placeholder="500">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Cruise Power Setting</label>
+            <input class="fp-input" id="fp-power" placeholder="65% / MCP / METO">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Descent Rate (fpm)</label>
+            <input class="fp-input" id="fp-descrate" type="number" placeholder="500">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: WEATHER & NOTAMs -->
+    <div id="tab-wx" class="fp-hidden">
+      <div class="fp-section-label">METAR / TAF Briefing</div>
+      <div class="fp-card">
+        <div class="fp-wx-card">
+          <div class="fp-wx-title">METAR — Departure Airport</div>
+          <textarea class="fp-textarea" id="fp-metar-dep-in" rows="2"
+            placeholder="Paste METAR here&#10;e.g. METAR KORD 161553Z 27015KT 10SM FEW040 SCT250 22/08 A3008 RMK AO2"
+            style="text-transform:none"></textarea>
+        </div>
+        <div class="fp-wx-card">
+          <div class="fp-wx-title">METAR — Destination Airport</div>
+          <textarea class="fp-textarea" id="fp-metar-dest-in" rows="2"
+            placeholder="Paste METAR here" style="text-transform:none"></textarea>
+        </div>
+        <div class="fp-wx-card">
+          <div class="fp-wx-title">TAF — Destination Airport</div>
+          <textarea class="fp-textarea" id="fp-taf-in" rows="4"
+            placeholder="Paste TAF here" style="text-transform:none"></textarea>
+        </div>
+        <div class="fp-grid-3" style="margin-top:12px">
+          <div class="fp-field">
+            <label class="fp-label">Winds Aloft (at cruise)</label>
+            <input class="fp-input" id="fp-wind" placeholder="270/15KT or 27015KT">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Temperature (°C at cruise alt)</label>
+            <input class="fp-input" id="fp-temp" placeholder="-22" type="number">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Altimeter Setting (inHg)</label>
+            <input class="fp-input" id="fp-altim" placeholder="29.92">
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">NOTAMs</div>
+      <div class="fp-card">
+        <div class="fp-notam">!ORD 06/052 ORD TWY B4 CLSD ACFT OPS 2506160600-2506170600</div>
+        <div class="fp-notam">!FDC 5/1234 IL..AIRSPACE CHICAGO APPROACH CTRL DUE TO ATC EQUIP STATUS</div>
+        <div class="fp-field" style="margin-top:10px">
+          <label class="fp-label">Additional NOTAMs / TFRs / Restrictions</label>
+          <textarea class="fp-textarea" id="fp-notams" rows="4"
+            placeholder="Paste relevant NOTAMs here..." style="text-transform:none"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: FILED PLAN -->
+    <div id="tab-output" class="fp-hidden">
+      <div class="fp-section-label">Flight Summary</div>
+      <div class="fp-summary-strip">
+        <div class="fp-summary-cell">
+          <div class="fp-summary-val" id="out-dep">——</div>
+          <div class="fp-summary-lbl">Departure</div>
+        </div>
+        <div class="fp-summary-cell">
+          <div class="fp-summary-val" id="out-dest">——</div>
+          <div class="fp-summary-lbl">Destination</div>
+        </div>
+        <div class="fp-summary-cell">
+          <div class="fp-summary-val" id="out-ete">——</div>
+          <div class="fp-summary-lbl">Est. En Route</div>
+        </div>
+        <div class="fp-summary-cell">
+          <div class="fp-summary-val" id="out-etd">——</div>
+          <div class="fp-summary-lbl">ETD (Zulu)</div>
+        </div>
+        <div class="fp-summary-cell">
+          <div class="fp-summary-val" id="out-alt">——</div>
+          <div class="fp-summary-lbl">Cruise Alt</div>
+        </div>
+      </div>
+
+      <div class="fp-section-label">ICAO FPL + FAA Form 7233-1</div>
+      <div style="position:relative">
+        <div class="fp-output" id="fp-plan-output">Click "Generate Flight Plan" to compile your plan.</div>
+        <span class="fp-output-badge">ICAO FPL</span>
+      </div>
+
+      <div class="fp-actions" style="margin-top:16px">
+        <button class="fp-btn fp-btn-primary" onclick="fpGenerate()">⬛ Generate Flight Plan</button>
+        <button class="fp-btn fp-btn-secondary" onclick="fpCopyPlan()">⧉ Copy to Clipboard</button>
+        <button class="fp-btn fp-btn-success" onclick="window.print()">⎙ Print Flight Plan</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
